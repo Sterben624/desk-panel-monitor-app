@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>860</width><height>600</height></rect>
+  </property>
+  <property name="windowTitle">
+   <string>Панель моніторингу</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+QWidget {
+    font-family: &quot;Ubuntu&quot;, &quot;Segoe UI&quot;, sans-serif;
+    font-size: 10pt;
+    color: #212121;
+    background-color: #f0f2f5;
+}
+QGroupBox {
+    font-weight: bold;
+    border: 1px solid #c5cad3;
+    border-radius: 6px;
+    margin-top: 10px;
+    padding: 8px 6px 6px 6px;
+    background-color: #ffffff;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 6px;
+    color: #1565c0;
+    background-color: #ffffff;
+}
+QProgressBar {
+    border: 1px solid #c5cad3;
+    border-radius: 4px;
+    background-color: #e8eaed;
+    text-align: center;
+    min-height: 16px;
+}
+QProgressBar::chunk {
+    background-color: #1976d2;
+    border-radius: 3px;
+}
+QPushButton {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 14px;
+    font-weight: bold;
+}
+QPushButton:hover { background-color: #1565c0; }
+QPushButton:pressed { background-color: #0d47a1; }
+QPushButton:checked { background-color: #388e3c; }
+QPushButton:checked:hover { background-color: #2e7d32; }
+QTabWidget::pane {
+    border: 1px solid #c5cad3;
+    background-color: #f0f2f5;
+    top: -1px;
+}
+QTabBar::tab {
+    background-color: #dde1e8;
+    border: 1px solid #c5cad3;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    padding: 5px 20px;
+    margin-right: 2px;
+    color: #546e7a;
+}
+QTabBar::tab:selected {
+    background-color: #f0f2f5;
+    color: #1565c0;
+    font-weight: bold;
+}
+QTabBar::tab:hover:!selected { background-color: #cdd1d8; }
+QLineEdit, QComboBox, QDoubleSpinBox, QSpinBox {
+    border: 1px solid #c5cad3;
+    border-radius: 4px;
+    padding: 3px 7px;
+    background-color: #ffffff;
+}
+QFrame#connFrame {
+    background-color: #ffffff;
+    border: 1px solid #c5cad3;
+    border-radius: 6px;
+}
+QCheckBox { spacing: 8px; }
+QCheckBox::indicator {
+    width: 16px; height: 16px;
+    border: 1px solid #c5cad3;
+    border-radius: 3px;
+    background-color: #ffffff;
+}
+QCheckBox::indicator:checked {
+    background-color: #1976d2;
+    border-color: #1976d2;
+}
+QStatusBar { background-color: #ffffff; border-top: 1px solid #c5cad3; }
+   </string>
+  </property>
+
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <property name="spacing"><number>8</number></property>
+    <property name="leftMargin"><number>10</number></property>
+    <property name="topMargin"><number>10</number></property>
+    <property name="rightMargin"><number>10</number></property>
+    <property name="bottomMargin"><number>4</number></property>
+
+    <!-- ═══ Панель підключення ═══ -->
+    <item>
+     <widget class="QFrame" name="connFrame">
+      <layout class="QHBoxLayout" name="connLayout">
+       <property name="leftMargin"><number>10</number></property>
+       <property name="topMargin"><number>6</number></property>
+       <property name="rightMargin"><number>10</number></property>
+       <property name="bottomMargin"><number>6</number></property>
+       <property name="spacing"><number>6</number></property>
+       <item>
+        <widget class="QLabel" name="labelPortText">
+         <property name="text"><string>Порт:</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="portCombo">
+         <property name="minimumWidth"><number>160</number></property>
+         <property name="editable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnRefreshPorts">
+         <property name="text"><string>↻</string></property>
+         <property name="maximumWidth"><number>32</number></property>
+         <property name="toolTip"><string>Оновити список портів</string></property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton { padding: 4px 6px; font-size: 14px; }</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnConnect">
+         <property name="text"><string>Підключити</string></property>
+         <property name="checkable"><bool>true</bool></property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation"><enum>Qt::Horizontal</enum></property>
+         <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelConnStatus">
+         <property name="text"><string>● Не підключено</string></property>
+         <property name="styleSheet">
+          <string notr="true">QLabel { font-weight: bold; color: #c62828; }</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+    <!-- ═══ Вкладки ═══ -->
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex"><number>0</number></property>
+
+      <!-- ─── Вкладка: Моніторинг ─── -->
+      <widget class="QWidget" name="tabMonitor">
+       <attribute name="title"><string>Моніторинг</string></attribute>
+       <layout class="QVBoxLayout" name="monitorLayout">
+        <property name="spacing"><number>8</number></property>
+        <property name="leftMargin"><number>8</number></property>
+        <property name="topMargin"><number>8</number></property>
+        <property name="rightMargin"><number>8</number></property>
+        <property name="bottomMargin"><number>8</number></property>
+
+        <!-- Верхній рядок: дані ПК + дані середовища -->
+        <item>
+         <layout class="QHBoxLayout" name="topRowLayout">
+          <property name="spacing"><number>8</number></property>
+
+          <!-- Група: Комп'ютер -->
+          <item>
+           <widget class="QGroupBox" name="grpPC">
+            <property name="title"><string>Комп&apos;ютер</string></property>
+            <layout class="QFormLayout" name="pcFormLayout">
+             <property name="horizontalSpacing"><number>12</number></property>
+             <property name="verticalSpacing"><number>10</number></property>
+             <item row="0" column="0">
+              <widget class="QLabel"><property name="text"><string>CPU:</string></property></widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QProgressBar" name="progressCpu">
+               <property name="maximum"><number>100</number></property>
+               <property name="value"><number>0</number></property>
+               <property name="format"><string>%p%</string></property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel"><property name="text"><string>RAM:</string></property></widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QProgressBar" name="progressRam">
+               <property name="maximum"><number>100</number></property>
+               <property name="value"><number>0</number></property>
+               <property name="format"><string>%p%</string></property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel"><property name="text"><string>Температура CPU:</string></property></widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="labelCpuTemp">
+               <property name="text"><string>— °C</string></property>
+               <property name="alignment"><set>Qt::AlignRight|Qt::AlignVCenter</set></property>
+               <property name="font">
+                <font><pointsize>13</pointsize><weight>75</weight><bold>true</bold></font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QLabel { color: #b71c1c; }</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+
+          <!-- Група: Середовище (МК) -->
+          <item>
+           <widget class="QGroupBox" name="grpEnv">
+            <property name="title"><string>Середовище (МК)</string></property>
+            <layout class="QFormLayout" name="envFormLayout">
+             <property name="horizontalSpacing"><number>12</number></property>
+             <property name="verticalSpacing"><number>10</number></property>
+             <item row="0" column="0">
+              <widget class="QLabel"><property name="text"><string>Температура:</string></property></widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="labelMkTemp">
+               <property name="text"><string>— °C</string></property>
+               <property name="alignment"><set>Qt::AlignRight|Qt::AlignVCenter</set></property>
+               <property name="font"><font><pointsize>13</pointsize><weight>75</weight><bold>true</bold></font></property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel"><property name="text"><string>Вологість:</string></property></widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="labelMkHumidity">
+               <property name="text"><string>— %</string></property>
+               <property name="alignment"><set>Qt::AlignRight|Qt::AlignVCenter</set></property>
+               <property name="font"><font><pointsize>13</pointsize><weight>75</weight><bold>true</bold></font></property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel"><property name="text"><string>eCO₂:</string></property></widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="labelMkEco2">
+               <property name="text"><string>— ppm</string></property>
+               <property name="alignment"><set>Qt::AlignRight|Qt::AlignVCenter</set></property>
+               <property name="font"><font><pointsize>13</pointsize><weight>75</weight><bold>true</bold></font></property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel"><property name="text"><string>TVOC:</string></property></widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLabel" name="labelMkTvoc">
+               <property name="text"><string>— ppb</string></property>
+               <property name="alignment"><set>Qt::AlignRight|Qt::AlignVCenter</set></property>
+               <property name="font"><font><pointsize>13</pointsize><weight>75</weight><bold>true</bold></font></property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel"><property name="text"><string>AQI:</string></property></widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLabel" name="labelMkAqi">
+               <property name="text"><string>—</string></property>
+               <property name="alignment"><set>Qt::AlignRight|Qt::AlignVCenter</set></property>
+               <property name="font"><font><pointsize>13</pointsize><weight>75</weight><bold>true</bold></font></property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+
+         </layout>
+        </item>
+
+        <!-- Нижній рядок: стан панелі -->
+        <item>
+         <widget class="QGroupBox" name="grpPanel">
+          <property name="title"><string>Стан панелі</string></property>
+          <layout class="QHBoxLayout" name="panelHLayout">
+           <property name="spacing"><number>12</number></property>
+           <property name="leftMargin"><number>12</number></property>
+           <property name="topMargin"><number>8</number></property>
+           <property name="rightMargin"><number>12</number></property>
+           <property name="bottomMargin"><number>8</number></property>
+
+           <!-- Яскравість та освітленість -->
+           <item>
+            <layout class="QFormLayout">
+             <property name="horizontalSpacing"><number>8</number></property>
+             <property name="verticalSpacing"><number>8</number></property>
+             <item row="0" column="0">
+              <widget class="QLabel"><property name="text"><string>Яскравість:</string></property></widget>
+             </item>
+             <item row="0" column="1">
+              <layout class="QHBoxLayout">
+               <property name="spacing"><number>6</number></property>
+               <item>
+                <widget class="QProgressBar" name="progressBrightness">
+                 <property name="maximum"><number>255</number></property>
+                 <property name="value"><number>0</number></property>
+                 <property name="textVisible"><bool>false</bool></property>
+                 <property name="minimumWidth"><number>140</number></property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelBrightness">
+                 <property name="text"><string>0</string></property>
+                 <property name="minimumWidth"><number>28</number></property>
+                 <property name="alignment"><set>Qt::AlignRight|Qt::AlignVCenter</set></property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel"><property name="text"><string>Освітленість:</string></property></widget>
+             </item>
+             <item row="1" column="1">
+              <layout class="QHBoxLayout">
+               <property name="spacing"><number>6</number></property>
+               <item>
+                <widget class="QProgressBar" name="progressLight">
+                 <property name="maximum"><number>4095</number></property>
+                 <property name="value"><number>0</number></property>
+                 <property name="textVisible"><bool>false</bool></property>
+                 <property name="minimumWidth"><number>140</number></property>
+                 <property name="styleSheet">
+                  <string notr="true">QProgressBar::chunk { background-color: #f9a825; }</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelLight">
+                 <property name="text"><string>0</string></property>
+                 <property name="minimumWidth"><number>38</number></property>
+                 <property name="alignment"><set>Qt::AlignRight|Qt::AlignVCenter</set></property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+
+           <!-- Розділювач -->
+           <item>
+            <widget class="QFrame">
+             <property name="frameShape"><enum>QFrame::VLine</enum></property>
+             <property name="frameShadow"><enum>QFrame::Sunken</enum></property>
+             <property name="styleSheet"><string notr="true">color: #c5cad3;</string></property>
+            </widget>
+           </item>
+
+           <!-- Кнопки та енкодер -->
+           <item>
+            <layout class="QVBoxLayout">
+             <property name="spacing"><number>8</number></property>
+
+             <!-- Три кнопки inline -->
+             <item>
+              <layout class="QHBoxLayout">
+               <property name="spacing"><number>14</number></property>
+               <!-- Ліва -->
+               <item>
+                <layout class="QHBoxLayout">
+                 <property name="spacing"><number>5</number></property>
+                 <item>
+                  <widget class="QLabel" name="ledBtnLeft">
+                   <property name="text"><string>●</string></property>
+                   <property name="styleSheet"><string notr="true">QLabel { font-size: 14px; color: #bdbdbd; }</string></property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel">
+                   <property name="text"><string>Ліва</string></property>
+                   <property name="styleSheet"><string notr="true">QLabel { color: #546e7a; }</string></property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <!-- Центр -->
+               <item>
+                <layout class="QHBoxLayout">
+                 <property name="spacing"><number>5</number></property>
+                 <item>
+                  <widget class="QLabel" name="ledBtnCenter">
+                   <property name="text"><string>●</string></property>
+                   <property name="styleSheet"><string notr="true">QLabel { font-size: 14px; color: #bdbdbd; }</string></property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel">
+                   <property name="text"><string>Центр</string></property>
+                   <property name="styleSheet"><string notr="true">QLabel { color: #546e7a; }</string></property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <!-- Права -->
+               <item>
+                <layout class="QHBoxLayout">
+                 <property name="spacing"><number>5</number></property>
+                 <item>
+                  <widget class="QLabel" name="ledBtnRight">
+                   <property name="text"><string>●</string></property>
+                   <property name="styleSheet"><string notr="true">QLabel { font-size: 14px; color: #bdbdbd; }</string></property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel">
+                   <property name="text"><string>Права</string></property>
+                   <property name="styleSheet"><string notr="true">QLabel { color: #546e7a; }</string></property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+
+             <!-- Енкодер inline -->
+             <item>
+              <layout class="QHBoxLayout">
+               <property name="spacing"><number>8</number></property>
+               <item>
+                <widget class="QLabel">
+                 <property name="text"><string>Енкодер Δ:</string></property>
+                 <property name="styleSheet"><string notr="true">QLabel { color: #546e7a; }</string></property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="labelEncoder">
+                 <property name="text"><string>0</string></property>
+                 <property name="font">
+                  <font><pointsize>11</pointsize><weight>75</weight><bold>true</bold></font>
+                 </property>
+                 <property name="styleSheet"><string notr="true">QLabel { color: #1976d2; }</string></property>
+                 <property name="minimumWidth"><number>36</number></property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+
+            </layout>
+           </item>
+
+           <item>
+            <spacer>
+             <property name="orientation"><enum>Qt::Horizontal</enum></property>
+             <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+            </spacer>
+           </item>
+
+          </layout>
+         </widget>
+        </item>
+
+       </layout>
+      </widget>
+
+      <!-- ─── Вкладка: Налаштування ─── -->
+      <widget class="QWidget" name="tabSettings">
+       <attribute name="title"><string>Налаштування</string></attribute>
+       <layout class="QVBoxLayout" name="settingsLayout">
+        <property name="spacing"><number>10</number></property>
+        <property name="leftMargin"><number>16</number></property>
+        <property name="topMargin"><number>12</number></property>
+        <property name="rightMargin"><number>16</number></property>
+        <property name="bottomMargin"><number>12</number></property>
+
+        <!-- Енкодер -->
+        <item>
+         <widget class="QGroupBox" name="grpEncoder">
+          <property name="title"><string>Енкодер</string></property>
+          <layout class="QFormLayout" name="encoderFormLayout">
+           <property name="horizontalSpacing"><number>16</number></property>
+           <property name="verticalSpacing"><number>10</number></property>
+           <item row="0" column="0">
+            <widget class="QLabel"><property name="text"><string>Режим:</string></property></widget>
+           </item>
+           <item row="0" column="1">
+            <layout class="QHBoxLayout">
+             <item>
+              <widget class="QComboBox" name="comboEncoderMode">
+               <property name="maximumWidth"><number>260</number></property>
+               <item><property name="text"><string>Яскравість дисплея</string></property></item>
+               <item><property name="text"><string>Гучність системи</string></property></item>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation"><enum>Qt::Horizontal</enum></property>
+               <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel"><property name="text"><string>Чутливість:</string></property></widget>
+           </item>
+           <item row="1" column="1">
+            <layout class="QHBoxLayout">
+             <item>
+              <widget class="QDoubleSpinBox" name="spinEncoderSens">
+               <property name="maximumWidth"><number>100</number></property>
+               <property name="minimum"><double>0.1</double></property>
+               <property name="maximum"><double>10.0</double></property>
+               <property name="singleStep"><double>0.1</double></property>
+               <property name="value"><double>1.0</double></property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation"><enum>Qt::Horizontal</enum></property>
+               <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+
+        <!-- Дисплей -->
+        <item>
+         <widget class="QGroupBox" name="grpDisplay">
+          <property name="title"><string>Дисплей</string></property>
+          <layout class="QVBoxLayout" name="displayVLayout">
+           <property name="spacing"><number>6</number></property>
+           <item>
+            <widget class="QCheckBox" name="checkAutoBrightness">
+             <property name="text"><string>Автояскравість (від фоторезистора МК)</string></property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="labelAutoBrightnessHint">
+             <property name="text"><string>Якщо вимкнено — яскравість керується енкодером</string></property>
+             <property name="styleSheet"><string notr="true">QLabel { color: #78909c; font-size: 9pt; }</string></property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+
+        <!-- Прив'язка кнопок -->
+        <item>
+         <widget class="QGroupBox" name="grpBindings">
+          <property name="title"><string>Кнопки панелі</string></property>
+          <layout class="QHBoxLayout" name="bindingsHLayout">
+           <item>
+            <widget class="QLabel">
+             <property name="text"><string>Призначте shell-команди для лівої, центральної та правої кнопок</string></property>
+             <property name="styleSheet"><string notr="true">QLabel { color: #546e7a; }</string></property>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation"><enum>Qt::Horizontal</enum></property>
+             <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnBindings">
+             <property name="text"><string>Налаштувати прив&apos;язки…</string></property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+
+        <item>
+         <spacer>
+          <property name="orientation"><enum>Qt::Vertical</enum></property>
+          <property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property>
+         </spacer>
+        </item>
+
+        <item>
+         <layout class="QHBoxLayout">
+          <item>
+           <spacer>
+            <property name="orientation"><enum>Qt::Horizontal</enum></property>
+            <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnSaveSettings">
+            <property name="text"><string>Зберегти налаштування</string></property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+
+       </layout>
+      </widget>
+
+     </widget>
+    </item>
+
+   </layout>
+  </widget>
+
+  <widget class="QStatusBar" name="statusbar"/>
+
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
